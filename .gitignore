@@ -205,3 +205,26 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Данные — никогда не коммитим сырые данные в git
+data/
+*.csv
+*.parquet
+*.json
+
+# Airflow генерирует много файлов
+logs/
+airflow.db
+airflow.cfg
+
+# Переменные окружения — секреты не должны попасть в git
+.env
+
+# Python кеш
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE файлы
+.idea/
+.vscode/
