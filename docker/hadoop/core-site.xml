@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://namenode:9000</value>
+    <!-- Это адрес NameNode. Когда Spark пишет hdfs:///data/file.csv
+         он знает что нужно идти на namenode:9000 -->
+  </property>
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>/hadoop/tmp</value>
+  </property>
+</configuration>
