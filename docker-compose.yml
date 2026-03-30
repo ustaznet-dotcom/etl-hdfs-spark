@@ -23,15 +23,16 @@ services:
     networks:
       - etl-network
     ports:
-      - "9870:9870"   # Web UI — откроешь в браузере чтобы видеть файлы в HDFS
-      - "9000:9000"   # Порт по которому Spark обращается к HDFS
+      - "9870:9870"
+      - "9000:9000"
     volumes:
       - hadoop_namenode:/hadoop/dfs/name
-      - ./docker/hadoop:/etc/hadoop/conf  # наши конфиги
     environment:
       - CLUSTER_NAME=etl-cluster
-    env_file:
-      - .env
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_replication=1
+      - HDFS_CONF_dfs_namenode_name_dir=file:///hadoop/dfs/name
+      - HDFS_CONF_dfs_permissions_enabled=false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9870"]
       interval: 30s
@@ -45,14 +46,15 @@ services:
     networks:
       - etl-network
     ports:
-      - "9864:9864"   # Web UI DataNode
+      - "9864:9864"
     volumes:
       - hadoop_datanode:/hadoop/dfs/data
-      - ./docker/hadoop:/etc/hadoop/conf
     environment:
-      SERVICE_PRECONDITION: "namenode:9870"  # ждёт пока namenode поднимется
-    env_file:
-      - .env
+      - SERVICE_PRECONDITION=namenode:9870
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_replication=1
+      - HDFS_CONF_dfs_datanode_data_dir=file:///hadoop/dfs/data
+      - HDFS_CONF_dfs_permissions_enabled=false
     depends_on:
       namenode:
         condition: service_healthy
