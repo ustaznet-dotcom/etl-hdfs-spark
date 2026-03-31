@@ -1,0 +1,51 @@
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+
+default_args = {
+    "owner": "airflow",
+    "retries": 2,
+    "retry_delay": timedelta(minutes=5),
+    "email_on_failure": False,
+}
+
+with DAG(
+    dag_id="nyc_taxi_etl",
+    default_args=default_args,
+    description="ETL pipeline: NYC Taxi data",
+    schedule_interval="0 0 * * *",
+    start_date=datetime(2024, 1, 1),
+    catchup=False,
+) as dag:
+
+    extract = BashOperator(
+        task_id="extract",
+        bash_command=(
+            "docker exec spark-master "
+            "/opt/spark/bin/spark-submit "
+            "--master spark://spark-master:7077 "
+            "/opt/spark/jobs/extract/extract.py"
+        ),
+    )
+
+    transform = BashOperator(
+        task_id="transform",
+        bash_command=(
+            "docker exec spark-master "
+            "/opt/spark/bin/spark-submit "
+            "--master spark://spark-master:7077 "
+            "/opt/spark/jobs/transform/transform.py"
+        ),
+    )
+
+    load = BashOperator(
+        task_id="load",
+        bash_command=(
+            "docker exec spark-master "
+            "/opt/spark/bin/spark-submit "
+            "--master spark://spark-master:7077 "
+            "/opt/spark/jobs/load/load.py"
+        ),
+    )
+
+    extract >> transform >> load

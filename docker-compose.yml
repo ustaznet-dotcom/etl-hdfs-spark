@@ -74,6 +74,8 @@ services:
     environment:
       - SPARK_NO_DAEMONIZE=true
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    volumes:
+      - ./jobs:/opt/spark/jobs  # папка с нашими PySpark задачами, чтобы мастер мог их видеть
     env_file:
       - .env
 
@@ -139,8 +141,9 @@ services:
       - airflow-init
     volumes:
       - ./dags:/opt/airflow/dags          # наши DAG-и
-      - ./jobs:/opt/airflow/jobs          # наши PySpark jobs
+      - ./jobs:/opt/spark/jobs          # наши PySpark jobs
       - airflow_logs:/opt/airflow/logs
+      - /var/run/docker.sock:/var/run/docker.sock  # нужно для запуска PySpark задач внутри контейнера Airflow
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
@@ -159,7 +162,7 @@ services:
       - "8080:8080"   # Airflow UI — откроешь localhost:8080
     volumes:
       - ./dags:/opt/airflow/dags
-      - ./jobs:/opt/airflow/jobs
+      - ./jobs:/opt/spark/jobs 
       - airflow_logs:/opt/airflow/logs
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
