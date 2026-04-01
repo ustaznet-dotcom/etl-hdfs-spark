@@ -10,6 +10,7 @@ volumes:
   hadoop_datanode:    # постоянное хранилище самих данных
   postgres_data:      # база данных Airflow
   airflow_logs:       # логи всех запусков DAG
+  metastore_db:      # база данных для Hive Metastore
 
 # ─────────────────────────────────────────
 # HDFS
@@ -162,7 +163,7 @@ services:
       - "8080:8080"   # Airflow UI — откроешь localhost:8080
     volumes:
       - ./dags:/opt/airflow/dags
-      - ./jobs:/opt/spark/jobs 
+      - ./jobs:/opt/spark/jobs
       - airflow_logs:/opt/airflow/logs
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -170,3 +171,84 @@ services:
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     command: webserver
+
+    # ─────────────────────────────────────────
+    # Superset
+    # ─────────────────────────────────────────
+  superset:
+    image: apache/superset:3.1.0
+    container_name: superset
+    networks:
+      - etl-network
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_SECRET_KEY=superset_secret_key_for_dev
+    depends_on:
+      - postgres
+    command: >
+      bash -c "pip install pyhive thrift thrift-sasl && superset db upgrade && superset fab create-admin --username admin --firstname Admin --lastname User --email admin@superset.com --password admin && superset init && superset run -h 0.0.0.0 -p 8088"
+  trino:
+    image: trinodb/trino:426
+    container_name: trino
+    hostname: trino
+    networks:
+      - etl-network
+    ports:
+      - "8089:8080"
+    volumes:
+      - ./docker/trino/config.properties:/etc/trino/config.properties
+      - ./docker/trino/node.properties:/etc/trino/node.properties
+      - ./docker/trino/jvm.config:/etc/trino/jvm.config
+      - ./docker/trino/catalog:/etc/trino/catalog
+      - ./docker/trino/core-site.xml:/etc/trino/core-site.xml
+    depends_on:
+      namenode:
+        condition: service_healthy
+
+# ─────────────────────────────────────────
+# hive
+
+  hive-metastore:
+    image: apache/hive:3.1.3
+    container_name: hive-metastore
+    hostname: hive-metastore
+    networks:
+      - etl-network
+    ports:
+      - "9083:9083"
+    volumes:
+      - ./docker/trino/metastore-site.xml:/opt/hive/conf/hive-site.xml
+      - ./docker/trino/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+    environment:
+      - SERVICE_NAME=metastore
+      - DB_DRIVER=postgres
+      - SERVICE_OPTS=-Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver
+          -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://metastore-db:5432/metastore
+          -Djavax.jdo.option.ConnectionUserName=airflow
+          -Djavax.jdo.option.ConnectionPassword=airflow
+    depends_on:
+      namenode:
+        condition: service_healthy
+      metastore-db:
+        condition: service_healthy
+
+# ─────────────────────────────────────────
+# База данных для Hive Metastore
+
+
+  metastore-db:
+    image: postgres:13
+    container_name: metastore-db
+    networks:
+      - etl-network
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: metastore
+    volumes:
+      - metastore_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
