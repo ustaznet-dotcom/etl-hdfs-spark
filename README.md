@@ -91,3 +91,6 @@ HDFS UI:    http://localhost:9870
 │   └── hadoop/               # Конфиги HDFS
 └── docker-compose.yml        # Кластер из 7 сервисов
 ```
+The AT command has been deprecated. Please use schtasks.exe instead.
+
+The request is not supported.
