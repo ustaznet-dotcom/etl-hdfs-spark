@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
+import sys
+sys.path.insert(0, '/opt/airflow/jobs')
 
 default_args = {
     "owner": "airflow",
@@ -58,4 +61,13 @@ with DAG(
         ),
     )
 
-    quality_check >> extract >> transform >> load
+    register_table = BashOperator(
+        task_id="register_table",
+        bash_command=(
+            "docker exec airflow-scheduler "
+            "python /opt/airflow/jobs/load/register_table.py"
+        ),
+    )
+
+    quality_check >> extract >> transform >> load >> register_table
+
