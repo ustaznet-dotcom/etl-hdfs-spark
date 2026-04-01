@@ -20,7 +20,7 @@ def extract(spark):
 def inspect(spark):
     
     print("=== SCHEMA ===")
-    df.printShema()
+    df.printSchema()
 
     print("=== SAMPLE (5 rows) ===")
     df.show(5, truncate=False)
