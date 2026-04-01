@@ -1,16 +1,14 @@
 from pyspark.sql import SparkSession
 
-
 def create_spark_session():
     spark = (
         SparkSession.builder
-        .appName("NYC Taxi Extract")
+        .appName("Spark SQL Example")
         .master("spark://spark-master:7077")
         .config("spark.hadoop.fs.defaultFS", "hdfs://namenode:9000")
         .getOrCreate()
     )
     return spark
-
 
 def extract(spark):
     df = spark.read.parquet(
@@ -19,9 +17,10 @@ def extract(spark):
     return df
 
 
-def inspect(df):
+def inspect(spark):
+    
     print("=== SCHEMA ===")
-    df.printSchema()
+    df.printShema()
 
     print("=== SAMPLE (5 rows) ===")
     df.show(5, truncate=False)

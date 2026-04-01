@@ -18,6 +18,16 @@ with DAG(
     catchup=False,
 ) as dag:
 
+    quality_check = BashOperator(
+        task_id="quality_check",
+        bash_command=(
+            "docker exec spark-master "
+            "/opt/spark/bin/spark-submit "
+            "--master spark://spark-master:7077 "
+            "/opt/spark/jobs/extract/quality_check.py"
+        ),
+    )
+
     extract = BashOperator(
         task_id="extract",
         bash_command=(
@@ -48,4 +58,4 @@ with DAG(
         ),
     )
 
-    extract >> transform >> load
+    quality_check >> extract >> transform >> load
