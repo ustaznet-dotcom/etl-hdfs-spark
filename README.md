@@ -94,3 +94,19 @@ HDFS UI:    http://localhost:9870
 The AT command has been deprecated. Please use schtasks.exe instead.
 
 The request is not supported.
+
+## Dashboard
+
+NYC Taxi Analytics dashboard built with Apache Superset:
+- Revenue by pickup location (top 10 zones)
+- Trip demand by hour of day
+
+![Dashboard](docs/dashboard.png)
+
+## Updated stack
+
+| Component      | Version | Role                        |
+|----------------|---------|-----------------------------|
+| Apache Superset| 3.1.0   | BI dashboards               |
+| Trino          | 426     | SQL engine over HDFS        |
+| Hive Metastore | 3.1.3   | Table metadata catalog      |
