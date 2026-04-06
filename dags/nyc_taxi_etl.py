@@ -6,7 +6,7 @@ from alerts import send_telegram_alert
 default_args = {
     "owner": "airflow",
     "retries": 2,
-    "retry_delay": timedelta(seconds=5),
+    "retry_delay": timedelta(seconds=15),
     "email_on_failure": False,
     "on_failure_callback": send_telegram_alert,
 }

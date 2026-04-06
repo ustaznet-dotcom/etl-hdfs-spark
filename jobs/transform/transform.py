@@ -121,7 +121,7 @@ def log_stats(df_raw, df_clean):
     dropped = raw_count - clean_count
     pct = (dropped / raw_count) * 100
 
-    print(f"=== DATA QUALITY REPORT ===")
+    print("=== DATA QUALITY REPORT ===")
     print(f"Raw rows:     {raw_count:,}")
     print(f"Clean rows:   {clean_count:,}")
     print(f"Dropped rows: {dropped:,} ({pct:.1f}%)")
