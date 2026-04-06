@@ -143,6 +143,7 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags          # наши DAG-и
       - ./jobs:/opt/spark/jobs          # наши PySpark jobs
+      - ./jobs:/opt/airflow/jobs 
       - airflow_logs:/opt/airflow/logs
       - /var/run/docker.sock:/var/run/docker.sock  # нужно для запуска PySpark задач внутри контейнера Airflow
     environment:
