@@ -1,15 +1,14 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from airflow.operators.python import PythonOperator
-import sys
-sys.path.insert(0, '/opt/airflow/jobs')
+from alerts import send_telegram_alert
 
 default_args = {
     "owner": "airflow",
     "retries": 2,
-    "retry_delay": timedelta(minutes=5),
+    "retry_delay": timedelta(seconds=5),
     "email_on_failure": False,
+    "on_failure_callback": send_telegram_alert,
 }
 
 with DAG(
@@ -70,4 +69,3 @@ with DAG(
     )
 
     quality_check >> extract >> transform >> load >> register_table
-
