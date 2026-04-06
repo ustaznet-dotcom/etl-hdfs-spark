@@ -121,6 +121,7 @@ The full pipeline completes in approximately 3-5 minutes depending on hardware.
 └── .env.example               # Required environment variables
 ```
 ## Pipeline Metrics (January 2024)
+```
 Input:            2,964,624 records
 Valid records:    2,723,707 records  (91.9%)
 Filtered:           240,917 records  (8.1%)
@@ -132,7 +133,7 @@ Zone 161  Midtown East      $3,234,940
 Hourly demand:
 Peak    18:00   195,911 trips  avg fare $16.95
 Off-peak 04:00   12,782 trips  avg fare $23.02
-
+```
 ## Design Decisions
 
 **Why HDFS over object storage?**
