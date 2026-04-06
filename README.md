@@ -21,6 +21,7 @@ through interactive dashboards — all orchestrated automatically on a daily sch
 - Peak demand at **18:00** with **195,911 trips** — 15x higher than 04:00 low
 
 ## Architecture
+```
 ┌─────────────────────────────────────────────────────────────┐
 │                      Airflow DAG                            │
 │  quality_check → extract → transform → load → register      │
@@ -34,7 +35,7 @@ year/month
 ▼
 [Superset]
 Dashboards
-
+```
 **Data flow:**
 1. Raw Parquet files land in HDFS `/data/raw`
 2. Quality checks validate schema, row counts, null rates, date ranges
@@ -97,6 +98,7 @@ The full pipeline completes in approximately 3-5 minutes depending on hardware.
 | Trino | http://localhost:8089 | — |
 
 ## Project Structure
+```
 ├── dags/
 │   ├── nyc_taxi_etl.py        # Main DAG definition
 │   └── alerts.py              # Telegram failure notifications
@@ -117,7 +119,7 @@ The full pipeline completes in approximately 3-5 minutes depending on hardware.
 ├── docker-compose.yml         # 10-service cluster
 ├── Makefile                   # Operational shortcuts
 └── .env.example               # Required environment variables
-
+```
 ## Pipeline Metrics (January 2024)
 Input:            2,964,624 records
 Valid records:    2,723,707 records  (91.9%)
